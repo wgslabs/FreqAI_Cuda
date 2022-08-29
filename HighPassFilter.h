@@ -29,4 +29,4 @@ typedef unsigned int UINT;
 #define UNIT_COUNT 200
 #define BEFORE_DATA_COUNT 100
 
-EXPORT int cudaHighPassFilter(const uint8_t * before_data_1, const uint8_t * before_data_2,const uint8_t* src, const int cnt, float* max_1, float* max_2, double hf_st1, double hf_cf1, double hf_st2, double hf_cf2);
+EXPORT int cudaHighPassFilter(double * times,const uint8_t * before_data_1, const uint8_t * before_data_2,const uint8_t* src, const int cnt, float* max_1, float* max_2, double hf_st1, double hf_cf1, double hf_st2, double hf_cf2);
