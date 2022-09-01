@@ -18,3 +18,5 @@ release:
 	$(CC) -shared -O3 -DNDEBUG -o lib$(TARGET).so $(OBJS)
 	rm *.o
 	# cp libHighPassFilter.so test
+		
+		
