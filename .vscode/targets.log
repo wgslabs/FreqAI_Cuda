@@ -6,7 +6,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Mon Sep  5 20:35:33 2022
+# Make data base, printed on Wed Sep  7 23:27:13 2022
 
 # Variables
 
@@ -28,8 +28,6 @@ XDG_SESSION_TYPE = x11
 TARGET = HighPassFilter
 # automatic
 ?D = $(patsubst %/,%,$(dir $?))
-# environment
-IM_CONFIG_PHASE = 1
 # automatic
 @D = $(patsubst %/,%,$(dir $@))
 # environment
@@ -43,11 +41,11 @@ CURDIR := /home/dolyu/Cuda_Gpu
 # makefile
 SHELL = /bin/sh
 # environment
+VTE_VERSION = 6003
+# environment
 VSCODE_NLS_CONFIG = {"locale":"ko","availableLanguages":{"*":"ko"},"_languagePackId":"2dff5cff996ed6cbe8d8aa8740f86aa0.ko","_translationsConfigFile":"/home/dolyu/.config/Code/clp/2dff5cff996ed6cbe8d8aa8740f86aa0.ko/tcf.json","_cacheRoot":"/home/dolyu/.config/Code/clp/2dff5cff996ed6cbe8d8aa8740f86aa0.ko","_resolvedLanguagePackCoreLocation":"/home/dolyu/.config/Code/clp/2dff5cff996ed6cbe8d8aa8740f86aa0.ko/3b889b090b5ad5793f524b5d1d39fda662b96a2a","_corruptedFile":"/home/dolyu/.config/Code/clp/2dff5cff996ed6cbe8d8aa8740f86aa0.ko/corrupted.info","_languagePackSupport":true}
 # environment
-_ = /usr/share/code/code
-# environment
-JOURNAL_STREAM = 8:48615
+JOURNAL_STREAM = 8:54734
 # environment
 XDG_CONFIG_DIRS = /etc/xdg/xdg-ubuntu:/etc/xdg
 # makefile (from 'makefile', line 1)
@@ -55,21 +53,23 @@ MAKEFILE_LIST :=  makefile
 # automatic
 @F = $(notdir $@)
 # environment
-GIO_LAUNCHED_DESKTOP_FILE = /usr/share/applications/code.desktop
+IM_CONFIG_PHASE = 1
 # environment
 USERNAME = dolyu
 # environment
 XDG_DATA_DIRS = /usr/share/ubuntu:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop
 # environment
 DBUS_SESSION_BUS_ADDRESS = unix:path=/run/user/1000/bus
+# environment
+_ = /usr/bin/code
 # makefile (from 'makefile', line 3)
 OBJS = $(TARGET).o
 # environment
-MANAGERPID = 1683
+MANAGERPID = 1763
 # environment
 LESSOPEN = | /usr/bin/lesspipe %s
 # environment
-VSCODE_CWD = /home/dolyu
+VSCODE_CWD = /home/dolyu/Cuda_Gpu
 # default
 MAKE_HOST := x86_64-pc-linux-gnu
 # environment
@@ -77,7 +77,7 @@ PATH = /usr/local/cuda-11.7/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bi
 # environment
 GPG_AGENT_INFO = /run/user/1000/gnupg/S.gpg-agent:0:1
 # environment
-SESSION_MANAGER = local/wgslabs:@/tmp/.ICE-unix/1955,unix/wgslabs:/tmp/.ICE-unix/1955
+SESSION_MANAGER = local/wgslabs:@/tmp/.ICE-unix/2031,unix/wgslabs:/tmp/.ICE-unix/2031
 # environment
 XDG_RUNTIME_DIR = /run/user/1000
 # environment
@@ -85,17 +85,15 @@ XDG_MENU_PREFIX = gnome-
 # environment
 ELECTRON_RUN_AS_NODE = 1
 # environment
-INVOCATION_ID = 5df11f5e5cab44a5a18b13d708397a1b
+INVOCATION_ID = b1b828fddace4a749f9e9e18dc4a00dc
 # default
 .FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell archives jobserver output-sync check-symlink load
 # environment
-LS_COLORS = 
+LS_COLORS = rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:
 # environment
 XDG_SESSION_DESKTOP = ubuntu
 # environment
 SSH_AUTH_SOCK = /run/user/1000/keyring/ssh
-# environment
-GIO_LAUNCHED_DESKTOP_FILE_PID = 3931
 # automatic
 %F = $(notdir $%)
 # environment
@@ -105,7 +103,7 @@ PWD = /home/dolyu/Cuda_Gpu
 # default
 .LOADED := 
 # environment
-SSH_AGENT_PID = 1917
+SSH_AGENT_PID = 1993
 # environment
 ORIGINAL_XDG_CURRENT_DESKTOP = ubuntu:GNOME
 # environment
@@ -119,11 +117,15 @@ LD_LIBRARY_PATH = /home/dolyu/Cuda_Gpu:
 # environment
 LESSCLOSE = /usr/bin/lesspipe %s %s
 # environment
+VSCODE_CLI = 1
+# environment
 VSCODE_CODE_CACHE_PATH = /home/dolyu/.config/Code/CachedData/3b889b090b5ad5793f524b5d1d39fda662b96a2a
 # environment
 LOGNAME = dolyu
 # environment
 APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = 1
+# environment
+ELECTRON_NO_ATTACH_CONSOLE = 1
 # environment
 VSCODE_HANDLES_UNCAUGHT_ERRORS = true
 # environment
@@ -132,6 +134,8 @@ GNOME_DESKTOP_SESSION_ID = this-is-deprecated
 ^D = $(patsubst %/,%,$(dir $^))
 # environment
 MAKELEVEL := 0
+# environment
+COLORTERM = truecolor
 # default
 MAKE = $(MAKE_COMMAND)
 # default
@@ -139,7 +143,7 @@ MAKECMDGOALS := all
 # environment
 QT_IM_MODULE = ibus
 # environment
-SHLVL = 0
+SHLVL = 1
 # makefile (from 'makefile', line 1)
 CC = nvcc
 # environment
@@ -156,6 +160,8 @@ XDG_CURRENT_DESKTOP = Unity
 %D = $(patsubst %/,%,$(dir $%))
 # default
 MAKE_COMMAND := make
+# environment
+OLDPWD = /home/dolyu
 # default
 .VARIABLES := 
 # automatic
@@ -184,8 +190,12 @@ MAKEFILES :=
 LC_ALL = C
 # environment
 GJS_DEBUG_TOPICS = JS ERROR;JS LOG
+# environment
+GNOME_TERMINAL_SCREEN = /org/gnome/Terminal/screen/ce0f7fbf_c04c_4184_b57e_8896fe9b183b
 # automatic
 ^F = $(notdir $^)
+# environment
+GNOME_TERMINAL_SERVICE = :1.263
 # default
 SUFFIXES := 
 # environment
@@ -201,9 +211,11 @@ GJS_DEBUG_OUTPUT = stderr
 # environment
 LANG = C
 # environment
-VSCODE_PID = 3931
+TERM = xterm-256color
+# environment
+VSCODE_PID = 18369
 # variable set hash-table stats:
-# Load=96/1024=9%, Rehash=0, Collisions=14/130=11%
+# Load=102/1024=10%, Rehash=0, Collisions=15/136=11%
 
 # Pattern-specific Variable Values
 
@@ -270,6 +282,7 @@ debug:
 # Not a target:
 makefile:
 #  Implicit rule search has been done.
+ 
 #  Last modified 2022-09-01 13:19:37.561203251
 #  File has been updated.
 #  Successfully updated.
@@ -293,7 +306,6 @@ release:
 #  File has not been updated.
 
 # files hash-table stats:
- 
 # Load=6/1024=1%, Rehash=0, Collisions=0/18=0%
 # VPATH Search Paths
 
@@ -307,6 +319,6 @@ release:
 # strcache performance: lookups = 26 / hit rate = 34%
 # hash-table stats:
 # Load=17/8192=0%, Rehash=0, Collisions=1/26=4%
-# Finished Make data base on Mon Sep  5 20:35:33 2022
+# Finished Make data base on Wed Sep  7 23:27:13 2022
 
  
