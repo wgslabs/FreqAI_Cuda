@@ -62,7 +62,7 @@ typedef unsigned int UINT;
 #define UNIT_COUNT 200
 #define BEFORE_DATA_COUNT 100
 #define AMP_RESULT_DATA_COUNT 100
-#define AMP_DEVIDE_COUNT 8
+#define AMP_DEVIDE_COUNT 5
 
 // EXPORT int cudaHighPassFilter(const uint8_t* src, const int cnt,  const uint8_t * before_data_1, const uint8_t * before_data_2,float* max_1, float* max_2,float* min_1, float* min_2,const double hf_st1,const double hf_cf1,const double hf_st2,const double hf_cf2, const int offset_1, const double scale_1, const int offset_2, const double scale_2);
 EXPORT int cudaHighPassFilter(const uint8_t* src, const int cnt, const uint8_t * before_data_1, const uint8_t * before_data_2,float* max_1, float* max_2, uint8_t* min_1, uint8_t* min_2,const double hf_st1,const double hf_cf1,const double hf_st2, const double hf_cf2, const int offset_1, const double scale_1, const int offset_2, const double scale_2, int* ampResult1, int* ampResult2, const int ampThreshold);

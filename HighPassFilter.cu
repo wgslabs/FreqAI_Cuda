@@ -207,11 +207,6 @@ EXPORT int cudaHighPassFilter(const uint8_t* src, const int cnt, const uint8_t *
 	status = cudaMemcpy(min_2, dev_min_2, UNIT_COUNT * sizeof(uint8_t), cudaMemcpyDeviceToHost);
 	if (isCudaError(status)) goto Exit;
 
-	// status = cudaMemcpy(ampResult1, dev_ampResults1, UNIT_COUNT * AMP_RESULT_DATA_COUNT *sizeof(int), cudaMemcpyDeviceToHost);
-	// if (isCudaError(status)) goto Exit;
-	// status = cudaMemcpy(ampResult2, dev_ampResults2, UNIT_COUNT * AMP_RESULT_DATA_COUNT *sizeof(int), cudaMemcpyDeviceToHost);
-	// if (isCudaError(status)) goto Exit;
-
 Exit:
 	cudaFree(dev_src);
 	cudaFree(dev_before_data_1);
@@ -240,64 +235,11 @@ __global__ void kernel2(const uint8_t* src, const int loopCnt,const uint8_t * be
 	uint8_t _min_2 = 255;
 	uint8_t _ampMax1 = 0;
 	uint8_t _ampMax2 = 0;
-	// if(taskIdx ==143){
-	// 	printf("%u %u \n",taskIdx * loopCnt , taskIdx * loopCnt +loopCnt);
-	// }
+
 	int a = 0;
 	for(UINT index = 0; index < loopCnt; index++)
 	{
-		
 		const UINT realIdx = taskIdx * loopCnt + index;
-
-		// if(taskIdx ==143){
-		// 	if(abs(OFFSET_1 - src[realIdx*2])==98){
-		// 		printf("%u %u \n",realIdx, index);
-		// 	}
-		// }
-		// if(realIdx >= 0 && realIdx <= 10)
-		// {
-		// 	printf("taskidx %u realIdx %u %d %u \n",taskIdx, realIdx, a, abs(OFFSET_1 - src[realIdx*2]));	
-		// }
-
-		// if(realIdx >= 17917050 && realIdx <= 17917070)
-		// {
-		// 	printf("taskidx %u realIdx %u %d %u \n",taskIdx, realIdx, a, abs(OFFSET_1 - src[realIdx*2]));	
-		// }
-
-		// 기존
-		// if((realIdx % AMP_DEVIDE_COUNT) == 0 && realIdx != 0)
-		// {
-		// 	uint8_t _ampMax1 = 0;
-		// 	uint8_t _ampMax2 = 0;
-		// 	for(UINT srcIndex = realIdx - AMP_DEVIDE_COUNT; srcIndex < realIdx; srcIndex++)
-		// 	{
-		// 		const uint8_t __src_1 =  abs((OFFSET_1 - src[srcIndex*2]));
-		// 		const uint8_t __src_2 =  abs((OFFSET_2 - src[srcIndex*2 + 1]));
-		// 		if(__src_1 > _ampMax1) _ampMax1 = __src_1;
-		// 		if(__src_2 > _ampMax2) _ampMax2 = __src_2;
-		// 	}
-		// 	if(_ampMax1 < _min_1) _min_1=_ampMax1;
-		// 	if(_ampMax2 < _min_2) _min_2=_ampMax2;
-			
-		// 	// if(taskIdx ==143){
-		// 	// 	if(_ampMax1 == 98){
-		// 	// 		printf("realIdx %u %d \n",realIdx, a);
-		// 	// 	}
-		// 	// }
-			
-		// 	// if(taskIdx ==143){
-		// 	// 	if(a == 6809){
-		// 	// 		printf("Taskidx %u realIdx %u %d %u \n",taskIdx, realIdx, a, _ampMax1);
-		// 	// 	}
-		// 	// 	if(a == 6810){
-		// 	// 		printf("Taskidx %u realIdx %u %d %u \n",taskIdx,realIdx, a, _ampMax1);
-		// 	// 	}
-		// 	// 	if(a == 6811){
-		// 	// 		printf("Taskidx %u realIdx %u %d %u \n",taskIdx,realIdx, a, _ampMax1);
-		// 	// 	}
-		// 	// }
-		// 	a++;
-		// }
 		
 		// 2500만개의 index 0 에서 바로 전 2500만개의 뒷부분 가져와서 output_1, x1_1
 		if(realIdx == 0)
@@ -348,15 +290,9 @@ __global__ void kernel2(const uint8_t* src, const int loopCnt,const uint8_t * be
 			_ampMax2 = 0;
 			// count 위해서 남김
 			a++;
-		}
+		} 
 	}
-	//printf("%ud %ud \n",taskIdx, _min_1);
-	// if(taskIdx ==143){
-		
-	// 		printf("aaaaaaaaaaa  %d \n",a);
-		
-	// }		
-	printf("aaaaaaaaaaa  %d, %d \n", taskIdx,a);
+	
 	max_1[taskIdx] = _max_1;
 	max_2[taskIdx] = _max_2;
 	min_1[taskIdx] = _min_1;
