@@ -233,14 +233,28 @@ __global__ void kernel2(const uint8_t* src, const int loopCnt,const uint8_t * be
 	float _max_1 = 0, _max_2 = 0;
 	uint8_t _min_1 = 255;
 	uint8_t _min_2 = 255;
-	uint8_t _ampMax1 = 0;
-	uint8_t _ampMax2 = 0;
 
 	int a = 0;
 	for(UINT index = 0; index < loopCnt; index++)
 	{
 		const UINT realIdx = taskIdx * loopCnt + index;
 		
+		if((realIdx % AMP_DEVIDE_COUNT) == AMP_DEVIDE_COUNT - 1)
+		{
+			uint8_t _ampMax1 = 0;
+			uint8_t _ampMax2 = 0;
+			for(UINT srcIndex = realIdx - AMP_DEVIDE_COUNT + 1; srcIndex <= realIdx; srcIndex++)
+			{
+				const uint8_t __src_1 =  abs((OFFSET_1 - src[srcIndex*2]));
+				const uint8_t __src_2 =  abs((OFFSET_2 - src[srcIndex*2 + 1]));
+				if(__src_1 > _ampMax1) _ampMax1 = __src_1;
+				if(__src_2 > _ampMax2) _ampMax2 = __src_2;
+			}
+			if(_ampMax1 < _min_1) _min_1=_ampMax1;
+			if(_ampMax2 < _min_2) _min_2=_ampMax2;
+			a++;
+		}
+
 		// 2500만개의 index 0 에서 바로 전 2500만개의 뒷부분 가져와서 output_1, x1_1
 		if(realIdx == 0)
 		{
@@ -265,10 +279,11 @@ __global__ void kernel2(const uint8_t* src, const int loopCnt,const uint8_t * be
 				x1_2 = (float)src[beforeIndex*2+1];
 			}
 		}
-		const uint8_t value1 = abs((OFFSET_1 - src[realIdx*2]));
-		const uint8_t value2 = abs((OFFSET_2 - src[realIdx*2+1]));
-		output_1 = (float) AMPLFAC_1 * (value1 - x1_1 - output_1 * Y1C_1);
-		output_2 = (float) AMPLFAC_2 * (value2 - x1_2 - output_2 * Y1C_2);
+
+		// const uint8_t value1 = abs((OFFSET_1 - src[realIdx*2]));
+		// const uint8_t value2 = abs((OFFSET_2 - src[realIdx*2+1]));	
+		output_1 = (float) AMPLFAC_1 * (src[realIdx*2] - x1_1 - output_1 * Y1C_1);
+		output_2 = (float) AMPLFAC_2 * (src[realIdx*2+1] - x1_2 - output_2 * Y1C_2);
 		
 		x1_1 =  (float)src[realIdx*2];
 		x1_2 =  (float)src[realIdx*2+1];
@@ -276,21 +291,6 @@ __global__ void kernel2(const uint8_t* src, const int loopCnt,const uint8_t * be
 		// H ALGO
 		if(output_1 > _max_1) _max_1 = output_1;
 		if(output_2 > _max_2) _max_2 = output_2;
-
-		// A ALGO
-		if(value1 > _ampMax1) _ampMax1 = value1;
-		if(value2 > _ampMax2) _ampMax2 = value2;
-
-		// 진폭 알고리즘
-		if((realIdx % AMP_DEVIDE_COUNT) == AMP_DEVIDE_COUNT - 1)
-		{
-			if(_ampMax1 < _min_1) _min_1=_ampMax1;
-			if(_ampMax2 < _min_2) _min_2=_ampMax2;
-			_ampMax1 = 0;
-			_ampMax2 = 0;
-			// count 위해서 남김
-			a++;
-		} 
 	}
 	
 	max_1[taskIdx] = _max_1;
@@ -323,17 +323,15 @@ EXPORT int cudaHighPassFilter2(const uint8_t* src, const int cnt, const uint8_t 
 		printf("Cuda Algorithm Value Error");
 		goto Exit;
 	}
-	// printf("start checkVersion\n");
 	// int runtimeVer = 0, driverVer = 0;
 	// status = cudaRuntimeGetVersion(&runtimeVer);
 	// if(isCudaError(status)) goto Exit;
 	// status = cudaDriverGetVersion(&driverVer);
 	// if(isCudaError(status)) goto Exit;
 
-	// printf("cuda runtime ver.%d / cuda driver ver.%d\n", runtimeVer, driverVer);
 	status = cudaSetDevice(0);
 	if(isCudaError(status)) goto Exit;
-	// printf("1 \n");
+
 	// cuda에 데이터 malloc
 	status = cudaMalloc((void**)&dev_src, (cnt*2)* sizeof(uint8_t));
 	if (isCudaError(status)) goto Exit;
@@ -374,8 +372,6 @@ EXPORT int cudaHighPassFilter2(const uint8_t* src, const int cnt, const uint8_t 
 	if (isCudaError(status)) goto Exit;
 	status = cudaMemcpy(min_2, dev_min_2, UNIT_COUNT * sizeof(uint8_t), cudaMemcpyDeviceToHost);
 	if (isCudaError(status)) goto Exit;
-
-	// if (isCudaError(status)) goto Exit;
 
 Exit:
 	cudaFree(dev_src);
