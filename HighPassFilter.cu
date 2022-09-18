@@ -233,12 +233,47 @@ __global__ void kernel2(const uint8_t* src, const int loopCnt,const uint8_t * be
 	float _max_1 = 0, _max_2 = 0;
 	uint8_t _min_1 = 255;
 	uint8_t _min_2 = 255;
-
 	int a = 0;
+
+	// 2500만개의 index 0 에서 바로 전 2500만개의 뒷부분 가져와서 output_1, x1_1
+	if(taskIdx == 0)
+	{
+		// 여기에 2500만개의 before data 100개를 넣으면 됨
+		for (UINT beforeDataIndex = 0; beforeDataIndex < BEFORE_DATA_COUNT; beforeDataIndex++)
+		{
+			
+			const float value1 = OFFSET_1 - before_data_1[beforeDataIndex];
+			const float value2 = OFFSET_2 - before_data_2[beforeDataIndex];
+			output_1 = AMPLFAC_1 * (value1 - x1_1 - output_1 * Y1C_1);
+			output_2 = AMPLFAC_2 * (value2 - x1_2 - output_2 * Y1C_2);;
+			x1_1 = value1;
+			x1_2 = value2;
+		}
+	}
+	else{//125056 의 배수들에서 그 앞 데이터 -100번째에서 output_1, x1_1
+		for (UINT beforeIndex = 0; beforeIndex < BEFORE_DATA_COUNT; beforeIndex++)
+		{
+			const UINT realIdx = taskIdx * loopCnt + beforeIndex - BEFORE_DATA_COUNT;
+			const float value1 = OFFSET_1 - src[realIdx*2];
+			const float value2 = OFFSET_2 - src[realIdx*2+1];
+			output_1 = AMPLFAC_1 * (value1 - x1_1 - output_1 * Y1C_1);
+			output_2 = AMPLFAC_2 * (value2 - x1_2 - output_2 * Y1C_2);
+			x1_1 = value1;
+			x1_2 = value2;
+		}
+	}
+
 	for(UINT index = 0; index < loopCnt; index++)
 	{
 		const UINT realIdx = taskIdx * loopCnt + index;
 		
+		// if(taskIdx == 1){
+		// 	if(index==0){
+		// 		printf("hpf data %f %f",output_1, x1_1);
+
+		// 	}
+		// }
+
 		if((realIdx % AMP_DEVIDE_COUNT) == AMP_DEVIDE_COUNT - 1)
 		{
 			uint8_t _ampMax1 = 0;
@@ -255,42 +290,25 @@ __global__ void kernel2(const uint8_t* src, const int loopCnt,const uint8_t * be
 			a++;
 		}
 
-		// 2500만개의 index 0 에서 바로 전 2500만개의 뒷부분 가져와서 output_1, x1_1
-		if(realIdx == 0)
-		{
-			// 여기에 2500만개의 before data 100개를 넣으면 됨
-			for (UINT beforeDataIndex = 0; beforeDataIndex < BEFORE_DATA_COUNT; beforeDataIndex++)
-			{
-				output_1 = AMPLFAC_1 * ((float)before_data_1[beforeDataIndex] - x1_1 - output_1 * Y1C_1);
-				output_2 = AMPLFAC_2 * ((float)before_data_2[beforeDataIndex] - x1_2 - output_2 * Y1C_2);;
-				x1_1 = (float)before_data_1[beforeDataIndex];
-				x1_2 = (float)before_data_2[beforeDataIndex];
-			}
-		}
-
-		// 125056 의 배수들에서 그 앞 데이터 -100번째에서 output_1, x1_1
-		if((realIdx % loopCnt) == 0 && realIdx != 0)
-		{
-			for (UINT beforeIndex = realIdx - BEFORE_DATA_COUNT; beforeIndex < realIdx; beforeIndex++)
-			{
-				output_1 = AMPLFAC_1 * ((float)src[beforeIndex*2] - x1_1 - output_1 * Y1C_1);
-				output_2 = AMPLFAC_2 * ((float)src[beforeIndex*2+1] - x1_2 - output_2 * Y1C_2);
-				x1_1 = (float)src[beforeIndex*2];
-				x1_2 = (float)src[beforeIndex*2+1];
-			}
-		}
-
-		// const uint8_t value1 = abs((OFFSET_1 - src[realIdx*2]));
-		// const uint8_t value2 = abs((OFFSET_2 - src[realIdx*2+1]));	
-		output_1 = (float) AMPLFAC_1 * (src[realIdx*2] - x1_1 - output_1 * Y1C_1);
-		output_2 = (float) AMPLFAC_2 * (src[realIdx*2+1] - x1_2 - output_2 * Y1C_2);
+		const float value1 = OFFSET_1 - src[realIdx*2];
+		const float value2 = OFFSET_2 - src[realIdx*2+1];
+		output_1 = AMPLFAC_1 * (value1 - x1_1 - output_1 * Y1C_1);
+		output_2 = AMPLFAC_2 * (value2 - x1_2 - output_2 * Y1C_2);
 		
-		x1_1 =  (float)src[realIdx*2];
-		x1_2 =  (float)src[realIdx*2+1];
+		x1_1 =  (float)value1;
+		x1_2 =  (float)value2;
 		
 		// H ALGO
-		if(output_1 > _max_1) _max_1 = output_1;
-		if(output_2 > _max_2) _max_2 = output_2;
+		const float absO1 = abs(output_1);
+		const float absO2 = abs(output_2);
+		// if(taskIdx == 1){
+		// 	if(index < 10){
+		// 		printf("value %d %f %f %f %f",realIdx, value1,value2 ,absO1, absO2);
+		// 		printf("aaaaaaaa %f %f %f %f \n",AMPLFAC_1, x1_1,output_1 ,Y1C_1);
+		// 	}
+		// }
+		if(absO1 > _max_1) _max_1 = absO1;
+		if(absO2 > _max_2) _max_2 = absO2;
 	}
 	
 	max_1[taskIdx] = _max_1;
@@ -309,11 +327,11 @@ EXPORT int cudaHighPassFilter2(const uint8_t* src, const int cnt, const uint8_t 
 	const int OFFSET_2 = offset_2;
 	const float SCALE_1 = scale_1;
 	const float SCALE_2 = scale_2;
-	const double OMEGA_C_1 = 2 * M_PI * hf_cf2;
+	const double OMEGA_C_1 = 2 * M_PI * hf_cf1;
 	const double OMEGA_C_2 = 2 * M_PI * hf_cf2;
-	const double AMPLFAC_1 = 1 / ((hf_st2 * OMEGA_C_1 / 2) + 1);
+	const double AMPLFAC_1 = 1 / ((hf_st1 * OMEGA_C_1 / 2) + 1);
 	const double AMPLFAC_2 = 1 / ((hf_st2 * OMEGA_C_2 / 2) + 1);
-	const double Y1C_1 = (hf_st2 * OMEGA_C_1 / 2) - 1;
+	const double Y1C_1 = (hf_st1 * OMEGA_C_1 / 2) - 1;
 	const double Y1C_2 = (hf_st2 * OMEGA_C_2 / 2) - 1;
 	
 	cudaError_t status;
@@ -363,6 +381,7 @@ EXPORT int cudaHighPassFilter2(const uint8_t* src, const int cnt, const uint8_t 
 	status = cudaDeviceSynchronize();
 	if (isCudaError(status)) goto Exit;
 
+	
 	// cuda데이터를 Host로 memcpy
 	status = cudaMemcpy(max_1, dev_max_1, UNIT_COUNT * sizeof(float), cudaMemcpyDeviceToHost);
 	if (isCudaError(status)) goto Exit;
