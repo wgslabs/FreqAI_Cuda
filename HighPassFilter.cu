@@ -266,7 +266,7 @@ __global__ void kernel2(const uint8_t* src, const int loopCnt,const uint8_t * be
 	for(UINT index = 0; index < loopCnt; index++)
 	{
 		const UINT realIdx = taskIdx * loopCnt + index;
-		
+
 		// if(taskIdx == 1){
 		// 	if(index==0){
 		// 		printf("hpf data %f %f",output_1, x1_1);
@@ -381,7 +381,6 @@ EXPORT int cudaHighPassFilter2(const uint8_t* src, const int cnt, const uint8_t 
 	status = cudaDeviceSynchronize();
 	if (isCudaError(status)) goto Exit;
 
-	
 	// cuda데이터를 Host로 memcpy
 	status = cudaMemcpy(max_1, dev_max_1, UNIT_COUNT * sizeof(float), cudaMemcpyDeviceToHost);
 	if (isCudaError(status)) goto Exit;
