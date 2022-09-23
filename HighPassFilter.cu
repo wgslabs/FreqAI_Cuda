@@ -225,12 +225,13 @@ Exit:
 
 
 
-__global__ void kernel2(const uint8_t* src, const int loopCnt,const uint8_t * before_data_1, const uint8_t * before_data_2, float* max_1, float* max_2,uint8_t* min_1, uint8_t* min_2,const double AMPLFAC_1,const double AMPLFAC_2,const double Y1C_1,const double Y1C_2, const int OFFSET_1, const float SCALE_1, const int OFFSET_2, const float SCALE_2)
+__global__ void kernel2(const uint8_t* src, const int loopCnt,const uint8_t * before_data_1, const uint8_t * before_data_2, float* hpfmax_1, float* hpfmax_2, uint8_t* max_1, uint8_t* max_2,uint8_t* min_1, uint8_t* min_2,const double AMPLFAC_1,const double AMPLFAC_2,const double Y1C_1,const double Y1C_2, const int OFFSET_1, const float SCALE_1, const int OFFSET_2, const float SCALE_2)
 {
 	const UINT taskIdx = threadIdx.x;
 	float output_1 = 0, output_2 = 0;
 	float x1_1 = 0, x1_2 = 0;
-	float _max_1 = 0, _max_2 = 0;
+	float _hpfmax_1 = 0, _hpfmax_2 = 0;
+	uint8_t _max_1 = 0, _max_2 = 0;
 	uint8_t _min_1 = 255;
 	uint8_t _min_2 = 255;
 	int a = 0;
@@ -241,13 +242,13 @@ __global__ void kernel2(const uint8_t* src, const int loopCnt,const uint8_t * be
 		// 여기에 2500만개의 before data 100개를 넣으면 됨
 		for (UINT beforeDataIndex = 0; beforeDataIndex < BEFORE_DATA_COUNT; beforeDataIndex++)
 		{
-			
 			const float value1 = OFFSET_1 - before_data_1[beforeDataIndex];
 			const float value2 = OFFSET_2 - before_data_2[beforeDataIndex];
 			output_1 = AMPLFAC_1 * (value1 - x1_1 - output_1 * Y1C_1);
 			output_2 = AMPLFAC_2 * (value2 - x1_2 - output_2 * Y1C_2);;
 			x1_1 = value1;
 			x1_2 = value2;
+			// printf("%d, %d\n", before_data_1[beforeDataIndex],before_data_2[beforeDataIndex]);
 		}
 	}
 	else{//125056 의 배수들에서 그 앞 데이터 -100번째에서 output_1, x1_1
@@ -287,6 +288,8 @@ __global__ void kernel2(const uint8_t* src, const int loopCnt,const uint8_t * be
 			}
 			if(_ampMax1 < _min_1) _min_1=_ampMax1;
 			if(_ampMax2 < _min_2) _min_2=_ampMax2;
+			if(_ampMax1 > _max_1) _max_1=_ampMax1;
+			if(_ampMax2 > _max_2) _max_2=_ampMax2;
 			a++;
 		}
 
@@ -307,21 +310,24 @@ __global__ void kernel2(const uint8_t* src, const int loopCnt,const uint8_t * be
 		// 		printf("aaaaaaaa %f %f %f %f \n",AMPLFAC_1, x1_1,output_1 ,Y1C_1);
 		// 	}
 		// }
-		if(absO1 > _max_1) _max_1 = absO1;
-		if(absO2 > _max_2) _max_2 = absO2;
+		if(absO1 > _hpfmax_1) _hpfmax_1 = absO1;
+		if(absO2 > _hpfmax_2) _hpfmax_2 = absO2;
 	}
 	
-	max_1[taskIdx] = _max_1;
-	max_2[taskIdx] = _max_2;
+	hpfmax_1[taskIdx] = _hpfmax_1;
+	hpfmax_2[taskIdx] = _hpfmax_2;
 	min_1[taskIdx] = _min_1;
 	min_2[taskIdx] = _min_2;
+	max_1[taskIdx] = _max_1;
+	max_2[taskIdx] = _max_2;
 }
-EXPORT int cudaHighPassFilter2(const uint8_t* src, const int cnt, const uint8_t * before_data_1, const uint8_t * before_data_2,float* max_1, float* max_2, uint8_t* min_1, uint8_t* min_2,const double hf_st1,const double hf_cf1,const double hf_st2, const double hf_cf2, const int offset_1, const double scale_1, const int offset_2, const double scale_2)
+EXPORT int cudaHighPassFilter2(const uint8_t* src, const int cnt, const uint8_t * before_data_1, const uint8_t * before_data_2,float* hpfmax_1, float* hpfmax_2, uint8_t* max_1, uint8_t* max_2, uint8_t* min_1, uint8_t* min_2,const double hf_st1,const double hf_cf1,const double hf_st2, const double hf_cf2, const int offset_1, const double scale_1, const int offset_2, const double scale_2)
 {
 	uint8_t *dev_before_data_1 = 0;
 	uint8_t *dev_before_data_2 = 0;
 	uint8_t *dev_src = 0;
-	float *dev_max_1 = 0, *dev_max_2 = 0;
+	float *dev_hpfmax_1 = 0, *dev_hpfmax_2 = 0;
+	uint8_t *dev_max_1 = 0, *dev_max_2 = 0;
 	uint8_t *dev_min_1 = 0, *dev_min_2 = 0;
 	const int OFFSET_1 = offset_1;
 	const int OFFSET_2 = offset_2;
@@ -357,9 +363,13 @@ EXPORT int cudaHighPassFilter2(const uint8_t* src, const int cnt, const uint8_t 
 	if (isCudaError(status)) goto Exit;
 	status = cudaMalloc((void**)&dev_before_data_2, BEFORE_DATA_COUNT * sizeof(uint8_t));
 	if (isCudaError(status)) goto Exit;
-	status = cudaMalloc((void**)&dev_max_1, UNIT_COUNT * sizeof(float));
+	status = cudaMalloc((void**)&dev_hpfmax_1, UNIT_COUNT * sizeof(float));
 	if (isCudaError(status)) goto Exit;
-	status = cudaMalloc((void**)&dev_max_2, UNIT_COUNT * sizeof(float));
+	status = cudaMalloc((void**)&dev_hpfmax_2, UNIT_COUNT * sizeof(float));
+	if (isCudaError(status)) goto Exit;
+	status = cudaMalloc((void**)&dev_max_1, UNIT_COUNT * sizeof(uint8_t));
+	if (isCudaError(status)) goto Exit;
+	status = cudaMalloc((void**)&dev_max_2, UNIT_COUNT * sizeof(uint8_t));
 	if (isCudaError(status)) goto Exit;
 	status = cudaMalloc((void**)&dev_min_1, UNIT_COUNT * sizeof(uint8_t));
 	if (isCudaError(status)) goto Exit;
@@ -375,16 +385,20 @@ EXPORT int cudaHighPassFilter2(const uint8_t* src, const int cnt, const uint8_t 
 	if (isCudaError(status)) goto Exit;
 
 	// cuda로 작동하는 function
-	kernel2<<<1, UNIT_COUNT>>> (dev_src, cnt / UNIT_COUNT, dev_before_data_1, dev_before_data_2, dev_max_1, dev_max_2,dev_min_1, dev_min_2, AMPLFAC_1, AMPLFAC_2, Y1C_1, Y1C_2, OFFSET_1, SCALE_1, OFFSET_2, SCALE_2);
+	kernel2<<<1, UNIT_COUNT>>> (dev_src, cnt / UNIT_COUNT, dev_before_data_1, dev_before_data_2, dev_hpfmax_1, dev_hpfmax_2, dev_max_1, dev_max_2,dev_min_1, dev_min_2, AMPLFAC_1, AMPLFAC_2, Y1C_1, Y1C_2, OFFSET_1, SCALE_1, OFFSET_2, SCALE_2);
 	if (isCudaError(cudaGetLastError())) goto Exit;
 	// cuda 동기화
 	status = cudaDeviceSynchronize();
 	if (isCudaError(status)) goto Exit;
 
 	// cuda데이터를 Host로 memcpy
-	status = cudaMemcpy(max_1, dev_max_1, UNIT_COUNT * sizeof(float), cudaMemcpyDeviceToHost);
+	status = cudaMemcpy(hpfmax_1, dev_hpfmax_1, UNIT_COUNT * sizeof(float), cudaMemcpyDeviceToHost);
 	if (isCudaError(status)) goto Exit;
-	status = cudaMemcpy(max_2, dev_max_2, UNIT_COUNT * sizeof(float), cudaMemcpyDeviceToHost);
+	status = cudaMemcpy(hpfmax_2, dev_hpfmax_2, UNIT_COUNT * sizeof(float), cudaMemcpyDeviceToHost);
+	if (isCudaError(status)) goto Exit;
+	status = cudaMemcpy(max_1, dev_max_1, UNIT_COUNT * sizeof(uint8_t), cudaMemcpyDeviceToHost);
+	if (isCudaError(status)) goto Exit;
+	status = cudaMemcpy(max_2, dev_max_2, UNIT_COUNT * sizeof(uint8_t), cudaMemcpyDeviceToHost);
 	if (isCudaError(status)) goto Exit;
 	status = cudaMemcpy(min_1, dev_min_1, UNIT_COUNT * sizeof(uint8_t), cudaMemcpyDeviceToHost);
 	if (isCudaError(status)) goto Exit;
@@ -395,6 +409,8 @@ Exit:
 	cudaFree(dev_src);
 	cudaFree(dev_before_data_1);
 	cudaFree(dev_before_data_2);
+	cudaFree(dev_hpfmax_1);
+	cudaFree(dev_hpfmax_2);
 	cudaFree(dev_max_1);
 	cudaFree(dev_max_2);
 	cudaFree(dev_min_1);
