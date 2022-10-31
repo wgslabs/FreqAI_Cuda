@@ -1,7 +1,0 @@
-make --dry-run --always-make --keep-going --print-directory
-make: Entering directory '/home/dolyu/Cuda_Gpu'
-nvcc -Xcompiler -fPIC -c HighPassFilter.cu
-nvcc -shared -o libHighPassFilter.so HighPassFilter.o
-rm *.o
-make: Leaving directory '/home/dolyu/Cuda_Gpu'
- 
